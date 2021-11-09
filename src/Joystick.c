@@ -164,13 +164,14 @@ void HID_Task_startup(State_t* state, int* index, int* duration) {
 void GetNextReport(USB_JoystickReport_Input_t* report, uint8_t c) {
     _empty_report(report);
 
+    if (holdA){
+	report->Button |= SWITCH_A;
+    }
+
     switch (c) {
         case '0':
-	    if (holdA){
-		report->Button |= SWITCH_A;
-	    }
             break;
-
+	    
         case 'A':
             report->Button |= SWITCH_A;
 	    holdA = false;
