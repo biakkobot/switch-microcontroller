@@ -11,16 +11,10 @@ typedef enum {
 
 const __flash command STARTUP[] = {
     // Setup controller
-                          { NOTHING,  250 },
-    { TRIGGERS,   5 },    { NOTHING,  150 },
-    { TRIGGERS,   5 },    { NOTHING,  150 },
-    { A,          5 },    { NOTHING,  250 },
-
-    // Go into game
-    { HOME,       5 },    { NOTHING,  250 },
-    { A,          5 },    { NOTHING,  250 },
+                          { A,  5 },
 };
 const int STARTUP_LENGTH = sizeof(STARTUP) / sizeof(command);
+bool holdA = false;  // Used for the Hold A command
 
 void AS_Serial_SendString(char* s) {
     for (int i = 0; i < strlen(s); i += 1) {
@@ -105,13 +99,10 @@ void GetNextReport_startup(
         case PROCESS:
             switch (STARTUP[*index].button) {
                 case A:
-                    report->Button |= SWITCH_A;
                     break;
                 case HOME:
-                    report->Button |= SWITCH_HOME;
                     break;
                 case TRIGGERS:
-                    report->Button |= SWITCH_L | SWITCH_R;
                     break;
                 default:
                     report->LX = STICK_CENTER;
@@ -175,10 +166,14 @@ void GetNextReport(USB_JoystickReport_Input_t* report, uint8_t c) {
 
     switch (c) {
         case '0':
+	    if (holdA){
+		report->Button |= SWITCH_A;
+	    }
             break;
 
         case 'A':
             report->Button |= SWITCH_A;
+	    holdA = false;
             break;
 
         case 'B':
@@ -196,6 +191,9 @@ void GetNextReport(USB_JoystickReport_Input_t* report, uint8_t c) {
         case 'H':
             report->Button |= SWITCH_HOME;
             break;
+	    case 'C':
+	        report->Button |= SWITCH_CAPTURE;
+	        break;
 
         case '+':
             report->Button |= SWITCH_PLUS;
@@ -256,6 +254,68 @@ void GetNextReport(USB_JoystickReport_Input_t* report, uint8_t c) {
             report->LY = STICK_MAX;
             report->LX = STICK_MAX;
             break;
+	case '1':
+	    report->RY = STICK_MIN;
+            break;
+	case '2':
+	    report->RX = STICK_MIN;
+            break;
+	case '3':
+	    report->RY = STICK_MAX;
+            break;
+	case '4':
+	    report->RX = STICK_MAX;
+            break;
+	case '5':
+	    report->RX = STICK_MIN;
+	    report->RY = STICK_MIN;
+            break;
+	case '6':
+	    report->RY = STICK_MIN;
+	    report->RX = STICK_MAX;
+            break;
+	case '7':
+	    report->RY = STICK_MAX;
+	    report->RX = STICK_MIN;
+            break;
+	case '8':
+	    report->RX = STICK_MAX;
+	    report->RY = STICK_MAX;
+            break;
+	case 't':
+	    report->HAT = HAT_TOP;
+            break;
+	case 'g':
+	    report->HAT = HAT_LEFT;
+            break;
+	case 'j':
+	    report->HAT = HAT_RIGHT;
+            break;
+	case 'n':
+	    report->HAT = HAT_BOTTOM;
+            break;
+	case 'U':
+	    report->Button |= SWITCH_LCLICK;
+            break;
+	case 'u':
+	    report->Button |= SWITCH_RCLICK;
+	    break;
+    case 'h':
+	    report->Button |= SWITCH_A;
+	    holdA = true;
+            break;
+    case 'b':
+	    report->Button |= SWITCH_A;
+	    report->Button |= SWITCH_B;
+	    break;
+	case 'k':
+	    report->Button |= SWITCH_A;
+            report->LX = STICK_MAX;
+	    break;
+	case 'K':
+	    report->Button |= SWITCH_A;
+            report->LX = STICK_MIN;
+	    break;
     }
 }
 
