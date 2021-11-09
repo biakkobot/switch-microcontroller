@@ -1,23 +1,20 @@
-# nintendo switch controller arduino
+# Arduino Uno as a Nintendo Switch controller
 
-control your Nintendo Switch using a pro micro
+control your Nintendo Switch using an Arduino Uno
 
 ## requirements
 
-- [pro micro] (or compatible)
-- [ftdi usb to uart] (or other uart device)
-- usb cables (both use [micro usb])
-- wires
-
-[pro micro]: https://amzn.to/3rpb36r
-[ftdi usb to uart]: https://amzn.to/3dRWML0
-[micro usb]: https://amzn.to/2NVK4ll
+- Arduino Uno R3
+- FTDI USB to UART serial adapter
+- USB B to USB A cable (comes with Arduino)
+- 4 jumper wires
 
 ## installation
 
-```bash
-sudo apt install gcc-avr avr-libc dfu-programmer
-```
+Note: This project still has many problems on Windows. I used Ubuntu 18.04.
+Download the ZIP file or clone this project.
+Download the LUFA project at the bottom of this page http://www.fourwalledcubicle.com/LUFA.php
+Change the LUFA path in the included makefile, as well as setting the MCU value to atmega16u2
 
 ## assembly
 
@@ -28,38 +25,48 @@ and how they will be hooked up when operating
                         [your computer]
                             |
           +===========+     |
-          | (ftdi)    |-----+ (usb cable)
-          | gnd tx rx |
+          | (FTDI)    |-----+ 
+          | gnd rx tx |
           +==-===-==-=+
-             |   |  |
- +======+    |   |  |
- |buzzer|    |   |  |
- +======+    |   |  |  wires (note: tx matches with rx (crossed))
-     |  |    |   |  |
+          |  |   |  |
+          |  |   |  |
+          |  |   |  |
+          |  |   |  |  wires (note: tx matches with rx (crossed))
+          |  |   |  |
     +-==-====-===-==-==+
-    |9  gnd  gnd rx tx |-------------+  (usb cable)
-    |     (pro micro)  |             |
+    |    5V gnd  rx tx |-------------+  (usb cable)
+    |   (arduino uno)  |             |
     +==================+        [nintendo switch]
 
 ```
 
-my assembly (I have a button from rst to gnd to help flashing)
-
-![](https://user-images.githubusercontent.com/1810591/114293095-2ab8a980-9a48-11eb-9b35-290d58786701.jpg)
+my setup
 
 ## building
 
 ```bash
-make MCU=atmega32u4
+make MCU=atmega16u2
 ```
 
-use the appropriate `MCU` for your board, the pro micro uses `atmega32u4`
+use the appropriate `MCU` for your board, the Uno uses `atmega16u2`, the pro micro uses `atmega32u4`
+
+Note: If you get an error, you likely don't have some of the tools installed. 
+Run `sudo apt-get install gcc-avr binutils-avr avr-libc` to fix this.
 
 ## flashing
 
+WINDOWS
+-----------------------------------------------------------------------------
+- Download Flip (https://www.microchip.com/en-us/development-tool/flip).
+- Connect the Arduino to your computer with the USB cable
+- You'll see a 3x2 rectangle of pins at the top right, if the Uno's USB port is on the top. Connect the top right pin to GND briefly.
+- Select the USB device and flash the HEX file onto the Uno. It's now considered to be a Pokken controller.
+
+UBUNTU
+------------------------------------------------------------------------------
 you have to be quick with this!
 
-- connect the pro micro to your computer
+- connect the Arduino to your computer
 - short `rst` to `gnd` twice in quick succession
 
 ```bash
@@ -71,33 +78,20 @@ use the appropriate `MCU` and serial port for your board, the pro micro uses
 
 ## usage
 
-to use the controller:
-- start the game you want to play
-- press home
-- navigate to controllers
-- change order/grip
-- at this point, connect the controller (it should register itself and start
-  the game)
-
-at this point, you can control the controller using uart
+to use the controller, simply connect everything like the diagram shows, then send an input via the serial port
 
 commands are single-byte ascii characters sent over 9600 baud serial.
 
 this is the current list of commands:
 
 ```
-V: enable verbose mode (microcontroller will reply with `revc: _`)
-v: disable verbose mode
-
-!: enable output on pin 9 (buzzer)
-.: disable output on pin 9
-
 0: empty state (no buttons pressed)
 A: A is pressed
 B: B is pressed
 X: X is pressed
 Y: Y is pressed
 H: Home is pressed
+C: Capture is pressed
 +: + is pressed
 -: - is pressed
 L: left trigger is pressed
@@ -105,7 +99,7 @@ R: right trigger is pressed
 l: ZL is pressed
 r: ZR is pressed
 
-directions:
+left stick directions:
 
       w
    q     e
@@ -114,9 +108,33 @@ a  ═══╬═══  d
       ║
    z     c
       s
+      
+      
+right stick directions:
+
+      1
+   5     6
+      ║
+2  ═══╬═══  4
+      ║
+   7     8
+      3
+      
+DPAD directions:
+
+      t
+         
+      ║
+g  ═══╬═══  j
+      ║
+         
+      n
+      
 ```
 
 ## thanks
+Thanks to asottile for putting most of this together, and to javmarina for the help with the setup.
 
-Thanks to Shiny Quagsire for his [Splatoon post printer](https://github.com/shinyquagsire23/Switch-Fightstick) and progmem for his [original discovery](https://github.com/progmem/Switch-Fightstick).
+By extension,
+Thanks to Shiny Quagsire for his [Splatoon post printer](https://github.com/shinyquagsire23/Switch-Fightstick) and of course to progmem for his [original discovery](https://github.com/progmem/Switch-Fightstick).
 Also thanks to bertrandom for his [snowball thrower](https://github.com/bertrandom/snowball-thrower) and all the modifications.
