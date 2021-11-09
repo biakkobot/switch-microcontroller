@@ -98,6 +98,12 @@ L: left trigger is pressed
 R: right trigger is pressed
 l: ZL is pressed
 r: ZR is pressed
+U: left stick pressed
+u: right stick pressed
+h: hold A until A is pressed again
+b: press A and B together
+k: press A and hold right
+K: press A and hold left
 
 left stick directions:
 
