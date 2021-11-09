@@ -31,7 +31,7 @@ and how they will be hooked up when operating
           |  |   |  |
           |  |   |  |
           |  |   |  |
-          |  |   |  |  wires (note: tx matches with rx (crossed))
+          |  |   |  |  
           |  |   |  |
     +-==-====-===-==-==+
     |    5V gnd  rx tx |-------------+  (usb cable)
